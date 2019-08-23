@@ -1,0 +1,58 @@
+﻿TechBot - A Twitch Bot written in C# running a LUA "container" for each channel.
+
+```
+Folder structure: (TODO)
+	TechBot
+	│   TechBot.sh
+	│   TechBot.exe    
+	│   Dependencies.dll
+	│
+	└───Modules
+	│   └───Official
+	│   │   │   URLProtection.lua
+	│   │   │   SomeModuleName.lua
+	│	│
+	│	└───Username
+	│       │   ModuleName.lua
+	│   
+	└───Channels
+	│	└───Username
+	│       │   Main.lua
+	│
+	└───Web
+		│   To be decided
+```
+
+Goals:
+	- Mono-compatible (Primarily Windows and Linux support)
+
+	- Asynchronous LUA and channel threads (Each channel running it's own thread)
+
+	- Modules loaded inside each LUA container by adding module ID to DEPENDENCIES file (Or custom function?)
+
+	- Community distribution of LUA modules
+
+	- Webpanel for administration, managing community modules
+	  (ASP.net or Nancy maybe?)
+
+	- Ability for streamer to watch requested videos/songs etc
+
+	- View comment history of user.
+	  (Probably should use SQLite for this? Or Web API)
+
+	- Restricted LUA access to prevent server damage.
+	  (Should probably use LUA sandbox? Or just restrict working area if that's possible somehow)
+	  http://lua-users.org/wiki/SandBoxes
+
+Dependencies:
+	- IrcDotNet
+	- NLUA
+
+Classes:
+	Bot			- Main thread handling creation of channel and webpanel threads
+	IRC			- IRC connection & ping-pong thread
+	Message		- IRC messaging: Channel & private
+	Webpanel	- Handle webpanel stuff (Unsure about how this will be done for now)
+
+	Channel	- Object
+	LUA		- Object (Assign to each Channel)
