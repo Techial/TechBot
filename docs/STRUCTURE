@@ -49,10 +49,12 @@ Dependencies:
 	- NLUA
 
 Classes:
-	Bot			- Main thread handling creation of channel and webpanel threads
-	IRC			- IRC connection & ping-pong thread
-	Message		- IRC messaging: Channel & private
-	Webpanel	- Handle webpanel stuff (Unsure about how this will be done for now)
+	Bot				- Main thread handling creation of channel and webpanel threads
+	IRC				- IRC connection & ping-pong thread
+	MessageHandling	- IRC messaging: Channel & private
+	Webpanel		- Handle webpanel stuff (Unsure about how this will be done for now, or if it even should be a class)
 
 	Channel	- Object
 	LUA		- Object (Assign to each Channel)
+	User	- Object (User class is per-channel)
+	Module	- Object

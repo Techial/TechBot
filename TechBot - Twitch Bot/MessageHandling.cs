@@ -4,7 +4,7 @@ using System.Text;
 
 namespace TechBot
 {
-    class LUA
+    class MessageHandling
     {
     }
 }
