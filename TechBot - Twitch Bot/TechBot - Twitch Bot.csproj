@@ -6,6 +6,8 @@
     <RootNamespace>TechBot</RootNamespace>
     <Authors>Techial</Authors>
     <Product />
+    <ApplicationIcon />
+    <StartupObject></StartupObject>
   </PropertyGroup>
 
   <ItemGroup>

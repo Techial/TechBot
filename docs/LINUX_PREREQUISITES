@@ -1,0 +1,34 @@
+Automatic dependency install script (.NET Core 2.1):
+```
+wget https://dot.net/v1/dotnet-install.sh
+./dotnet-install.sh -c Current
+```
+
+------------------------------------------------------------------------------
+Ubuntu distributions require the following libraries installed:
+------------------------------------------------------------------------------
+```
+liblttng-ust0
+libcurl3 (for 14.x and 16.x)
+libcurl4 (for 18.x)
+libssl1.0.0
+libkrb5-3
+zlib1g
+libicu52 (for 14.x)
+libicu55 (for 16.x)
+libicu57 (for 17.x)
+libicu60 (for 18.x)
+```
+
+------------------------------------------------------------------------------
+CentOS and Fedora distributions require the following libraries installed:
+------------------------------------------------------------------------------
+```
+lttng-ust
+libcurl
+openssl-libs
+krb5-libs
+libicu
+zlib
+Fedora users: If your openssl's version >= 1.1, you'll need to install compat-openssl10.
+```
