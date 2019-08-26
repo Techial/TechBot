@@ -43,6 +43,7 @@ Goals:
 	- Restricted LUA access to prevent server damage.
 	  (Should probably use LUA sandbox? Or just restrict working area if that's possible somehow)
 	  http://lua-users.org/wiki/SandBoxes
+	  https://github.com/kikito/sandbox.lua/blob/master/sandbox.lua (Could use this)
 
 Dependencies:
 	- IrcDotNet
