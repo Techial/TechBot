@@ -27,7 +27,8 @@ namespace TechBot.Objects
             string ModuleFile = "modules/" + Creator + "/" + ModuleName + ".lua";
 
             if (File.Exists(ModuleFile))
-                Environment.LoadFile(ModuleFile);
+                Environment.LoadFile(ModuleFile); // We should probably avoid loading the LUA files with LoadFile and instead make a command loading this into a sandbox?
+                                                  // https://github.com/kikito/sandbox.lua/blob/master/sandbox.lua
         }
 
         ///<summary>
@@ -47,7 +48,8 @@ namespace TechBot.Objects
             string channelLUA = "channels/" + chName + "/main.lua";
 
             if (File.Exists(channelLUA))
-                Environment.LoadFile(channelLUA);
+                Environment.LoadFile(channelLUA);// We should probably avoid loading the LUA files with LoadFile and instead make a command loading this into a sandbox?
+                                                 // https://github.com/kikito/sandbox.lua/blob/master/sandbox.lua
         }
 
     }
