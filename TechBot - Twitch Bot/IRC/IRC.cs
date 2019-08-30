@@ -1,7 +1,7 @@
 ﻿using IrcDotNet;
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 using System.Threading;
 
 namespace TechBot
@@ -28,15 +28,15 @@ namespace TechBot
         {
             if (args.Length < 2)
             {
-                Console.WriteLine("Usage: twitchirc <username> <oauth>");
-                Console.WriteLine("Use http://twitchapps.com/tmi/ to generate an <oauth> token!");
+                Log.Logger.OutputToConsole("Usage: twitchirc <username> <oauth>");
+                Log.Logger.OutputToConsole("Use http://twitchapps.com/tmi/ to generate an <oauth> token!");
                 return;
             }
 
             var server = "irc.twitch.tv";
             var username = args[0];
             var password = args[1];
-            Console.WriteLine("Starting to connect to twitch as {0}.", username);
+            Log.Logger.OutputToConsole("Starting to connect to twitch as {0}.", username);
 
             using (client = new TwitchIrcClient())
             {
@@ -59,53 +59,22 @@ namespace TechBot
                             });
                         if (!connectedEvent.Wait(10000))
                         {
-                            Console.WriteLine("Connection to '{0}' timed out.", server);
+                            Log.Logger.OutputToConsole("Connection to '{0}' timed out.", server);
                             return;
                         }
                     }
                     Console.Out.WriteLine("Now connected to '{0}'.", server);
                     if (!registeredEvent.Wait(10000))
                     {
-                        Console.WriteLine("Could not register to '{0}'.", server);
+                        Log.Logger.OutputToConsole("Could not register to '{0}'.", server);
                         return;
                     }
                 }
 
                 Console.Out.WriteLine("Now registered to '{0}' as '{1}'.", server, username);
+                client.SendRawMessage("CAP REQ :twitch.tv/membership twitch.tv/commands twitch.tv/tags");
                 HandleEventLoop(client);
             }
-
-            /*
-            // Create new IRC client and connect to given server.
-            var client = new StandardIrcClient();
-            client.FloodPreventer = new IrcStandardFloodPreventer(4, 2000);
-            client.Connected += IrcClient_Connected;
-            client.Disconnected += IrcClient_Disconnected;
-            client.Registered += IrcClient_Registered;
-
-            // Wait until connection has succeeded or timed out.
-            using (var registeredEvent = new ManualResetEventSlim(false))
-            {
-                using (var connectedEvent = new ManualResetEventSlim(false))
-                {
-                    client.Connected += (sender2, e2) => connectedEvent.Set();
-                    client.Registered += (sender2, e2) => registeredEvent.Set();
-                    client.Connect(server, 6667, false, new IrcUserRegistrationInfo()
-                    {
-                        NickName = username.ToLower(),
-                        Password = password,
-                        UserName = username
-                    });
-                    if (!connectedEvent.Wait(10000))
-                    {
-                        client.Dispose();
-                        Console.WriteLine("Connection to '{0}' timed out.", server);
-                        return;
-                    }
-                }
-
-                HandleEventLoop(client);
-            }*/
         }
 
         private static void HandleEventLoop(IrcClient client)
@@ -120,7 +89,7 @@ namespace TechBot
                     case "exit":
                         isExit = true;
                         break;
-                    case "JOIN":
+                    case "join":
                         if(!string.IsNullOrEmpty(command))
                             client.SendRawMessage("JOIN #"+command);
                         break;
@@ -133,7 +102,7 @@ namespace TechBot
                             }
                             else
                             {
-                                Console.WriteLine("unknown command '{0}'", command);
+                                Log.Logger.OutputToConsole("unknown command '{0}'", command);
                             }
                         }
                         break;
@@ -150,6 +119,7 @@ namespace TechBot
             client.LocalUser.MessageReceived += IrcClient_LocalUser_MessageReceived;
             client.LocalUser.JoinedChannel += IrcClient_LocalUser_JoinedChannel;
             client.LocalUser.LeftChannel += IrcClient_LocalUser_LeftChannel;
+            client.RawMessageReceived += IrcClient_Process;
         }
 
         private static void IrcClient_LocalUser_LeftChannel(object sender, IrcChannelEventArgs e)
@@ -158,14 +128,14 @@ namespace TechBot
 
             e.Channel.UserJoined -= IrcClient_Channel_UserJoined;
             e.Channel.UserLeft -= IrcClient_Channel_UserLeft;
-            e.Channel.MessageReceived -= IrcClient_Channel_MessageReceived;
+            //e.Channel.MessageReceived -= IrcClient_Channel_MessageReceived;
             e.Channel.NoticeReceived -= IrcClient_Channel_NoticeReceived;
 
-            TechBot.Objects.Channel Channel = FindChannel(e.Channel.Name);
+            TechBot.Objects.Channel Channel = FindChannel(e.Channel.Name.Substring(1));
             if (ChannelList.Contains(Channel))
                 ChannelList.Remove(Channel);
 
-            Console.WriteLine("You left the channel {0}.", e.Channel.Name);
+            Log.Logger.OutputToConsole("You left the channel {0}.", e.Channel.Name);
         }
 
         private static void IrcClient_LocalUser_JoinedChannel(object sender, IrcChannelEventArgs e)
@@ -174,58 +144,49 @@ namespace TechBot
 
             e.Channel.UserJoined += IrcClient_Channel_UserJoined;
             e.Channel.UserLeft += IrcClient_Channel_UserLeft;
-            e.Channel.MessageReceived += IrcClient_Channel_MessageReceived;
+            //e.Channel.MessageReceived += IrcClient_Channel_MessageReceived;
             e.Channel.NoticeReceived += IrcClient_Channel_NoticeReceived;
 
             TechBot.Objects.Channel newChannel = new TechBot.Objects.Channel(e.Channel);
             ChannelList.Add(newChannel);
 
-            Console.WriteLine("You joined the channel {0}.", e.Channel.Name);
+            Log.Logger.OutputToConsole("You joined the channel {0}.", e.Channel.Name);
         }
 
         private static void IrcClient_Channel_NoticeReceived(object sender, IrcMessageEventArgs e)
         {
             var channel = (IrcChannel)sender;
 
-            Console.WriteLine("[{0}] Notice: {1}.", channel.Name, e.Text);
-        }
-
-        private static void IrcClient_Channel_MessageReceived(object sender, IrcMessageEventArgs e)
-        {
-            var channel = (IrcChannel)sender;
-            if (e.Source is IrcUser)
-            {
-                // Read message.
-                Console.WriteLine("[{0}]({1}): {2}.", channel.Name, e.Source.Name, e.Text);
-            }
-            else
-            {
-                Console.WriteLine("[{0}]({1}) Message: {2}.", channel.Name, e.Source.Name, e.Text);
-            }
+            Log.Logger.OutputToConsole("[{0}] Notice: {1}.", channel.Name, e.Text);
         }
 
         private static void IrcClient_Channel_UserLeft(object sender, IrcChannelUserEventArgs e)
         {
             var channel = (IrcChannel)sender;
 
-            TechBot.Objects.Channel Channel = FindChannel(e.ChannelUser.Channel.Name);
+            TechBot.Objects.Channel Channel = FindChannel(e.ChannelUser.Channel.Name.Substring(1));
             TechBot.Objects.User tempUser = Channel.FindUser(e.ChannelUser.User.NickName);
 
             Channel.UserLeft(tempUser);
 
-            Console.WriteLine("[{0}] User {1} left the channel.", channel.Name, e.ChannelUser.User.NickName);
+            Log.Logger.OutputToConsole("[{0}] User {1} left the channel.", channel.Name, e.ChannelUser.User.NickName);
         }
 
         private static void IrcClient_Channel_UserJoined(object sender, IrcChannelUserEventArgs e)
         {
             var channel = (IrcChannel)sender;
 
-            TechBot.Objects.Channel Channel = FindChannel(e.ChannelUser.Channel.Name);
-            TechBot.Objects.User tempUser = new TechBot.Objects.User(e.ChannelUser.User, e.ChannelUser.Channel.Name);
+            /*TechBot.Objects.Channel Channel = FindChannel(e.ChannelUser.Channel.Name.Substring(1));
+            TechBot.Objects.User tempUser = Channel.FindUser(e.ChannelUser.User.NickName);
 
-            Channel.UserJoined(tempUser);
+            if (tempUser == null)
+            {
+                tempUser = new TechBot.Objects.User(e.ChannelUser.User, Channel.Name);
+            }
 
-            Console.WriteLine("[{0}] User {1} joined the channel.", channel.Name, e.ChannelUser.User.NickName);
+            Channel.UserJoined(tempUser);*/
+
+            Log.Logger.OutputToConsole("[{0}] User {1} joined the channel.", channel.Name, e.ChannelUser.User.NickName);
         }
 
         private static void IrcClient_LocalUser_MessageReceived(object sender, IrcMessageEventArgs e)
@@ -235,18 +196,73 @@ namespace TechBot
             if (e.Source is IrcUser)
             {
                 // Read message.
-                Console.WriteLine("({0}): {1}.", e.Source.Name, e.Text);
+                Log.Logger.OutputToConsole("({0}): {1}.", e.Source.Name, e.Text);
             }
             else
             {
-                Console.WriteLine("({0}) Message: {1}.", e.Source.Name, e.Text);
+                Log.Logger.OutputToConsole("({0}) Message: {1}.", e.Source.Name, e.Text);
             }
         }
 
         private static void IrcClient_LocalUser_NoticeReceived(object sender, IrcMessageEventArgs e)
         {
             var localUser = (IrcLocalUser)sender;
-            Console.WriteLine("Notice: {0}.", e.Text);
+            Log.Logger.OutputToConsole("Notice: {0}.", e.Text);
+        }
+
+        private static void IrcClient_Process(object sender, IrcRawMessageEventArgs e)
+        {
+            string[] strlist = e.RawContent.Split(" ");
+            if (strlist[2] == "PRIVMSG")
+            {
+                string[] modes = strlist[0].Split(";");
+                int i = 0;
+                bool isMod = false;
+                string username = "";
+                foreach (string r in modes)
+                {
+                    if (r.Contains("mod="))
+                    {
+                        string IsMod = r.Split("=")[1];
+                        //IsMod = IsMod.Remove(IsMod.Length - 1);
+                        if (IsMod == "1")
+                            isMod = true;
+                    }else if(r.Contains("display-name=")) {
+                        username = r.Split("=")[1];
+                    }
+
+                    i++;
+                }
+
+                // Channel      = String    channelName
+                // Username     = String    username
+                // Message      = String    message
+                // Is User mod? = Boolean   isMod
+
+                string channelName = strlist[3].Substring(1);
+                string message = strlist[4].Substring(1);
+
+                if (username.ToLower() == channelName.ToLower())
+                    isMod = true;
+
+                Log.Logger.OutputToConsole("[{0}] {1}: {2}", strlist[3], username, message);
+
+                TechBot.Objects.Channel Channel = FindChannel(channelName);
+                TechBot.Objects.User tempUser = Channel.FindUser(username);
+
+                if (tempUser == null)
+                {
+                    tempUser = new TechBot.Objects.User(username, channelName);
+                }
+
+                Channel.UserJoined(tempUser);
+
+                Channel.ChatMessageReceived(tempUser, isMod, message);
+            }
+            else
+            {
+                //Log.Logger.OutputToConsole(e.RawContent);
+            }
         }
 
         private static void IrcClient_Disconnected(object sender, EventArgs e)

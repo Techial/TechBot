@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Threading;
 
 namespace TechBot.Objects
@@ -30,17 +28,25 @@ namespace TechBot.Objects
             string ModuleName = module.Name;
             string Creator = module.Creator;
 
-            string ModuleFile = "modules" + Filesystem.Folders.FolderSplit + Creator + Filesystem.Folders.FolderSplit + ModuleName + ".lua";
+            string ModuleFile = "modules" + Config.Folders.FolderSplit + Creator + Config.Folders.FolderSplit + ModuleName + ".lua";
 
             if (File.Exists(ModuleFile))
-                Environment.LoadFile(ModuleFile); // We should probably avoid loading the LUA files with LoadFile and instead make a command loading this into a sandbox?
-                                                  // https://github.com/kikito/sandbox.lua/blob/master/sandbox.lua
+                Environment.DoFile(ModuleFile); // We should probably avoid loading the LUA files with LoadFile and instead make a command loading this into a sandbox?
+                                                // https://github.com/kikito/sandbox.lua/blob/master/sandbox.lua
         }
 
         public void RegisterLUAFunctions()
         {
             Environment.RegisterFunction("sendMessage", this, GetType().GetMethod("SendMessage"));
+        }
 
+        public void RefreshLUA()
+        {
+            ThreadPool.QueueUserWorkItem(new WaitCallback(delegate (object state)
+            {
+                InitLUA(ParentChannel);
+                IRC_Functions.SendMessage(ParentChannel, "Script refreshed.");
+            }), null);
         }
 
         public void InitLUA(Channel Channel)
@@ -49,18 +55,32 @@ namespace TechBot.Objects
             string chName = Channel.Name;
             Environment = new NLua.Lua();
 
+            RegisterLUAFunctions();
+
             //We should retrieve modules before looping through to load them.
 
             foreach (Module module in Modules)
             {
-                LoadModule(module);
+                try
+                {
+                    LoadModule(module);
+                } catch
+                {
+                    // Do nothing for now
+                }
             }
             // Now you can start loading channel code.
-            string channelLUA = "channels" + Filesystem.Folders.FolderSplit + chName + Filesystem.Folders.FolderSplit + Filesystem.Files.LUA_DefaultFile;
+            string channelLUA = "channels" + Config.Folders.FolderSplit + chName + Config.Folders.FolderSplit + Config.LUA.DefaultFile;
 
-            if (File.Exists(channelLUA))
-                Environment.LoadFile(channelLUA);// We should probably avoid loading the LUA files with LoadFile and instead make a command loading this into a sandbox?
-                                                 // https://github.com/kikito/sandbox.lua/blob/master/sandbox.lua
+            try
+            {
+                if (File.Exists(channelLUA))
+                    Environment.DoFile(channelLUA);// We should probably avoid loading the LUA files with LoadFile and instead make a command loading this into a sandbox?
+                                                   // https://github.com/kikito/sandbox.lua/blob/master/sandbox.lua
+            } catch
+            {
+                // Do nothing for now
+            }
         }
 
         ///<summary>

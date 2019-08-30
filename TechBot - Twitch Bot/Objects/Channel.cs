@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace TechBot.Objects
 {
@@ -26,11 +23,16 @@ namespace TechBot.Objects
         ///</summary>
         public IrcDotNet.IrcChannel IrcChannelPointer { get; private set; }
 
+        ///<summary>
+        ///Command prefix - Default: !
+        ///</summary>
+        public string CommandPrefix { get; private set; }
+
         public User FindUser(string Username)
         {
             foreach (User user in Online)
             {
-                if (user.Username == Username)
+                if (user.Username.ToLower() == Username.ToLower())
                 {
                     return user;
                 }
@@ -44,10 +46,11 @@ namespace TechBot.Objects
         public Channel(IrcDotNet.IrcChannel NewChannel)
         {
             IrcChannelPointer = NewChannel;
-            Name = NewChannel.Name;
+            Name = NewChannel.Name.Substring(1);
             Filesystem.Folders.InitChannel(this);
             Filesystem.Files.InitChannel(this);
             LUAContainer = new LUA(this);
+            CommandPrefix = Config.Channel.GetCommandPrefix(this);
         }
 
         ///<summary>
@@ -86,6 +89,29 @@ namespace TechBot.Objects
         public void UserLeft(User user)
         {
             RemoveUser(user);
+        }
+
+        // -------------------------------------------------EVENTS-----------------------------------------------------
+        public void ChatMessageReceived(User user, bool IsMod, string Message)
+        {
+            if (user == null)
+                return; // Wait for channel update
+
+            if (Message.StartsWith(CommandPrefix))
+            {
+                switch (Message.Substring(1))
+                {
+                    case "refresh":
+                        if (IsMod)
+                            LUAContainer.RefreshLUA();
+
+                        break;
+                }
+            }
+            else
+            {
+                LUAContainer.ChatMessageReceived(user, Message);
+            }
         }
     }
 }

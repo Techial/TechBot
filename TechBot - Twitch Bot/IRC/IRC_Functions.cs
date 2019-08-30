@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace TechBot
+﻿namespace TechBot
 {
     class IRC_Functions
     {
@@ -15,6 +11,7 @@ namespace TechBot
         public static void SendMessage(Objects.Channel Channel, string Message)
         {
             IRC.client.SendRawMessage("PRIVMSG #"+Channel.Name.ToLower()+" :"+Message);
+            Log.Logger.OutputToConsole("[#{0}] {0}: {1}", Channel.Name.ToLower(), Message);
         }
 
         public static void SendCommand(string Command)

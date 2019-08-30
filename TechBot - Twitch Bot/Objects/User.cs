@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace TechBot.Objects
 {
@@ -11,25 +9,14 @@ namespace TechBot.Objects
         ///</summary>
         public string Username { get; private set; }
 
-        ///<summary>
-        ///Check if user is channel moderator.
-        ///</summary>
-        public Boolean IsMod { get; private set; }
-
-        ///<summary>
-        ///Pointer to IrcDotNet Client
-        ///</summary>
-        public IrcDotNet.IrcUser IRCClient { get; private set; }
-
         public string ChannelName { get; private set; }
 
         ///<summary>
         ///Constructor
         ///</summary>
-        public User(IrcDotNet.IrcUser Client, string ChName)
+        public User(string User, string ChName)
         {
-            IRCClient = Client;
-            Username = IRCClient.NickName;
+            Username = User;
             ChannelName = ChName;
         }
 
