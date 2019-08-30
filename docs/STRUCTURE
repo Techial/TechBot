@@ -46,8 +46,9 @@ Goals:
 	  https://github.com/kikito/sandbox.lua/blob/master/sandbox.lua (Could use this)
 
 Dependencies:
-	- IrcDotNet
-	- NLUA
+	- IrcDotNet (https://github.com/IrcDotNet/IrcDotNet)
+	- NLUA (https://github.com/NLua/NLua)
+	- Config-parser (https://github.com/salaros/config-parser)
 
 Classes:
 	Bot				- Main thread handling creation of channel and webpanel threads
