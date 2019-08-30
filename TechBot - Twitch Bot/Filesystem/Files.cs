@@ -10,7 +10,8 @@ namespace TechBot.Filesystem
     class Files
     {
         public static string LUA_ChannelTemplate = "";
-        public static string Github_URL = "https://github.com/Techial/TechBot/";
+        public static string WebProtocol = "https://";
+        public static string Github_URL = "github.com/Techial/TechBot/";
         public static string LUA_DefaultFile = "";
         public static void Init()
         {
@@ -44,7 +45,7 @@ namespace TechBot.Filesystem
             if(!File.Exists(LUA_ChannelTemplate))
             {
                 using (WebClient wc = new WebClient())
-                    wc.DownloadFile(Github_URL+"Templates/Channel.lua",LUA_ChannelTemplate); // Download Channel-template from Github page
+                    wc.DownloadFile(WebProtocol+"raw."+Github_URL+"master/Templates/Channel.lua",LUA_ChannelTemplate); // Download Channel-template from Github page
                 // Should probably add a version control to update this file??
                 // Or leave it up to the end user??
             }
