@@ -4,7 +4,7 @@ using System.Text;
 
 namespace TechBot.Objects
 {
-    class User
+    public class User
     {
         ///<summary>
         ///Get Username -> https://twitch.tv/username
@@ -17,11 +17,20 @@ namespace TechBot.Objects
         public Boolean IsMod { get; private set; }
 
         ///<summary>
+        ///Pointer to IrcDotNet Client
+        ///</summary>
+        public IrcDotNet.IrcUser IRCClient { get; private set; }
+
+        public string ChannelName { get; private set; }
+
+        ///<summary>
         ///Constructor
         ///</summary>
-        public User(string User)
+        public User(IrcDotNet.IrcUser Client, string ChName)
         {
-            Username = User;
+            IRCClient = Client;
+            Username = IRCClient.NickName;
+            ChannelName = ChName;
         }
 
         ///<summary>
@@ -44,6 +53,14 @@ namespace TechBot.Objects
                 // /timeout <username> <seconds>
             }
             //TODO
+        }
+
+        ///<summary>
+        ///Clear messages by user in Channel
+        ///</summary>
+        public void ClearMessages()
+        {
+            IRC_Functions.ClearUserMessages(ChannelName, Username);
         }
     }
 }

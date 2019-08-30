@@ -4,7 +4,14 @@ using System.Text;
 
 namespace TechBot
 {
-    class MessageHandling
+    static class MessageHandling
     {
+
+        public static void SendMessage(Objects.Channel Channel, string Message)
+        {
+            
+            // TODO
+        }
+
     }
 }

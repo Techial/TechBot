@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
 namespace TechBot.Objects
 {
-    class Channel
+    public class Channel
     {
         ///<summary>
         ///Get Username/Channel name -> https://twitch.tv/username
@@ -21,11 +22,29 @@ namespace TechBot.Objects
         public LUA LUAContainer { get; private set; }
 
         ///<summary>
+        ///IrcDotNet Channel Pointer
+        ///</summary>
+        public IrcDotNet.IrcChannel IrcChannelPointer { get; private set; }
+
+        public User FindUser(string Username)
+        {
+            foreach (User user in Online)
+            {
+                if (user.Username == Username)
+                {
+                    return user;
+                }
+            }
+            return null;
+        }
+
+        ///<summary>
         ///Constructor
         ///</summary>
-        public Channel(string ChannelName)
+        public Channel(IrcDotNet.IrcChannel NewChannel)
         {
-            Name = ChannelName;
+            IrcChannelPointer = NewChannel;
+            Name = NewChannel.Name;
             LUAContainer = new LUA(this);
         }
 
@@ -43,9 +62,9 @@ namespace TechBot.Objects
         ///<summary>
         ///Removes user from Channel
         ///</summary>
-        public void RemoveUser(User user)
+        private void RemoveUser(User user)
         {
-            if (!Online.Contains(user))
+            if (Online.Contains(user))
             {
                 Online.Remove(user);
             }
@@ -54,7 +73,7 @@ namespace TechBot.Objects
         ///<summary>
         ///Adds user to channel.<br></br>Ref AddUser()
         ///</summary>
-        private void UserJoined(User user)
+        public void UserJoined(User user)
         {
             AddUser(user);
         }
@@ -62,7 +81,7 @@ namespace TechBot.Objects
         ///<summary>
         ///Removes user from channel.<br></br>Ref RemoveUser()
         ///</summary>
-        private void UserLeft(User user)
+        public void UserLeft(User user)
         {
             RemoveUser(user);
         }

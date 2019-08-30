@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading;
 
 namespace TechBot.Objects
 {
-    class LUA
+    public class LUA
     {
         ///<summary>
         ///NLUA pointer for LUA environment.
@@ -16,6 +17,11 @@ namespace TechBot.Objects
         ///Modules
         ///</summary>
         public List<Module> Modules {get; private set;}
+
+        ///<summary>
+        ///Parent Channel
+        ///</summary>
+        public Channel ParentChannel { get; private set; }
 
         ///<summary>
         ///Load LUA Module
@@ -31,17 +37,22 @@ namespace TechBot.Objects
                                                   // https://github.com/kikito/sandbox.lua/blob/master/sandbox.lua
         }
 
-        ///<summary>
-        ///Constructor
-        ///</summary>
-        public LUA(Channel Channel)
+        public void RegisterLUAFunctions()
         {
+            Environment.RegisterFunction("SendMessage", this, GetType().GetMethod("SendMessage"));
+
+        }
+
+        public void InitLUA(Channel Channel)
+        {
+            ParentChannel = Channel;
             string chName = Channel.Name;
             Environment = new NLua.Lua();
 
             //We should retrieve modules before looping through to load them.
 
-            foreach(Module module in Modules) {
+            foreach (Module module in Modules)
+            {
                 LoadModule(module);
             }
             // Now you can start loading channel code.
@@ -50,6 +61,44 @@ namespace TechBot.Objects
             if (File.Exists(channelLUA))
                 Environment.LoadFile(channelLUA);// We should probably avoid loading the LUA files with LoadFile and instead make a command loading this into a sandbox?
                                                  // https://github.com/kikito/sandbox.lua/blob/master/sandbox.lua
+        }
+
+        ///<summary>
+        ///Constructor
+        ///</summary>
+        public LUA(Channel Channel)
+        {
+            /*LUAThread = new Thread(() => {
+                InitLUA(Channel);
+            });
+            LUAThread.Start();*/
+            
+            ThreadPool.QueueUserWorkItem(new WaitCallback(delegate (object state)
+            {
+                InitLUA(Channel);
+            }), null);
+        }
+
+
+        // ------------------------------------------REGISTERED FUNCTIONS----------------------------------------------
+        public void SendMessage(string Message)
+        {
+            ThreadPool.QueueUserWorkItem(new WaitCallback(delegate (object state)
+            {
+                MessageHandling.SendMessage(ParentChannel, Message);
+            }), null);
+        }
+
+        // -------------------------------------------------EVENTS-----------------------------------------------------
+        public void ChatMessageReceived(User user,string Message)
+        {
+            // Should probably add an event handler, but RegisterLuaDelegateType is poorly documented.
+
+            ThreadPool.QueueUserWorkItem(new WaitCallback(delegate (object state)
+            {
+                NLua.LuaFunction MessageReceived = Environment["Event_MessageReceived"] as NLua.LuaFunction;
+                MessageReceived.Call(user.Username, Message); // Safer way to call than using DoString
+            }), null);
         }
 
     }
