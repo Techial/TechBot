@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Salaros.Configuration;
+using System;
 using System.Threading;
 
 namespace TechBot
@@ -7,24 +8,28 @@ namespace TechBot
     {
         static void Main(string[] args)
         {
+            // Set Config Category we're working in
+            string ConfigCategory = "Credentials";
+
             // Load config file (.ini) or create if it doesn't exist
-            var ConfigFile = new Config.IniReader("settings.conf");
+            var ConfigFile = new ConfigParser(@"settings.conf");
 
-            // Check if default keys exist
-            if (!ConfigFile.KeyExists("Username", "Credentials"))
-                ConfigFile.Write("Username", "CHANGE THIS", "Credentials");
+            // Read config values
+            string Username = ConfigFile.GetValue(ConfigCategory, "Username");
+            string Password = ConfigFile.GetValue(ConfigCategory, "OAuth");
 
-            if (!ConfigFile.KeyExists("OAuth", "Credentials"))
-                ConfigFile.Write("Password", "CHANGE THIS", "Credentials");
+            // Check if values are empty and fill as needed
+            if (String.IsNullOrEmpty(Username))
+                ConfigFile.SetValue(ConfigCategory, "Username", "CHANGE THIS");
 
+            if (String.IsNullOrEmpty(Password))
+                ConfigFile.SetValue(ConfigCategory, "OAuth", "CHANGE THIS");
+            
 
-            // Read Config values
-            string Username = ConfigFile.Read("Username", "Credentials");
-            string Password = ConfigFile.Read("OAuth", "Credentials");
-
-            if (Username == "CHANGE THIS" || Password == "CHANGE THIS")
+            if (Username == "CHANGE THIS" || Password == "CHANGE THIS" || String.IsNullOrEmpty(Username) || String.IsNullOrEmpty(Password))
             {
-                Console.WriteLine("Please change Username and/or OAuth key in TechBot.config");
+                Console.WriteLine("Please change Username and/or OAuth in TechBot.config");
+                Console.WriteLine("https://twitchapps.com/tmi/ for generating OAuth token (Copy whole textbox)");
                 Console.WriteLine("Press any key to exit program ...");
                 Console.ReadKey();
                 System.Environment.Exit(1);
@@ -33,6 +38,11 @@ namespace TechBot
             // Connect Init(String["Username", "Password"])
             string[] Args = new string[2] { Username, Password };
 
+            //Init Filesystem first
+            Filesystem.Folders.Init();
+            Filesystem.Files.Init();
+
+            //Now we can connect to IRC
             IRC.Init(Args);
         }
     }

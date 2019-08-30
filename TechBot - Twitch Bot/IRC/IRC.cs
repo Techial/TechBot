@@ -10,7 +10,7 @@ namespace TechBot
     {
         public static TwitchIrcClient client;
 
-        public static List<TechBot.Objects.Channel> ChannelList;
+        public static List<TechBot.Objects.Channel> ChannelList = new List<TechBot.Objects.Channel>();
 
         public static TechBot.Objects.Channel FindChannel(string ChannelName)
         {
@@ -53,7 +53,7 @@ namespace TechBot
                         client.Connect(server, false,
                             new IrcUserRegistrationInfo()
                             {
-                                NickName = username,
+                                NickName = username.ToLower(),
                                 Password = password,
                                 UserName = username
                             });
@@ -74,6 +74,38 @@ namespace TechBot
                 Console.Out.WriteLine("Now registered to '{0}' as '{1}'.", server, username);
                 HandleEventLoop(client);
             }
+
+            /*
+            // Create new IRC client and connect to given server.
+            var client = new StandardIrcClient();
+            client.FloodPreventer = new IrcStandardFloodPreventer(4, 2000);
+            client.Connected += IrcClient_Connected;
+            client.Disconnected += IrcClient_Disconnected;
+            client.Registered += IrcClient_Registered;
+
+            // Wait until connection has succeeded or timed out.
+            using (var registeredEvent = new ManualResetEventSlim(false))
+            {
+                using (var connectedEvent = new ManualResetEventSlim(false))
+                {
+                    client.Connected += (sender2, e2) => connectedEvent.Set();
+                    client.Registered += (sender2, e2) => registeredEvent.Set();
+                    client.Connect(server, 6667, false, new IrcUserRegistrationInfo()
+                    {
+                        NickName = username.ToLower(),
+                        Password = password,
+                        UserName = username
+                    });
+                    if (!connectedEvent.Wait(10000))
+                    {
+                        client.Dispose();
+                        Console.WriteLine("Connection to '{0}' timed out.", server);
+                        return;
+                    }
+                }
+
+                HandleEventLoop(client);
+            }*/
         }
 
         private static void HandleEventLoop(IrcClient client)
@@ -87,6 +119,10 @@ namespace TechBot
                 {
                     case "exit":
                         isExit = true;
+                        break;
+                    case "JOIN":
+                        if(!string.IsNullOrEmpty(command))
+                            client.SendRawMessage("JOIN #"+command);
                         break;
                     default:
                         if (!string.IsNullOrEmpty(command))

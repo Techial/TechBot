@@ -14,7 +14,7 @@ namespace TechBot.Objects
         ///<summary>
         ///Get current online users in Channel
         ///</summary>
-        public List<User> Online { get; private set; }
+        public List<User> Online { get; private set; } = new List<User>();
 
         ///<summary>
         ///LUA Container
@@ -45,6 +45,8 @@ namespace TechBot.Objects
         {
             IrcChannelPointer = NewChannel;
             Name = NewChannel.Name;
+            Filesystem.Folders.InitChannel(this);
+            Filesystem.Files.InitChannel(this);
             LUAContainer = new LUA(this);
         }
 

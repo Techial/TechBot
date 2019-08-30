@@ -16,7 +16,7 @@ namespace TechBot.Objects
         ///<summary>
         ///Modules
         ///</summary>
-        public List<Module> Modules {get; private set;}
+        public List<Module> Modules { get; private set; } = new List<Module>();
 
         ///<summary>
         ///Parent Channel
@@ -30,7 +30,7 @@ namespace TechBot.Objects
             string ModuleName = module.Name;
             string Creator = module.Creator;
 
-            string ModuleFile = "modules/" + Creator + "/" + ModuleName + ".lua";
+            string ModuleFile = "modules" + Filesystem.Folders.FolderSplit + Creator + Filesystem.Folders.FolderSplit + ModuleName + ".lua";
 
             if (File.Exists(ModuleFile))
                 Environment.LoadFile(ModuleFile); // We should probably avoid loading the LUA files with LoadFile and instead make a command loading this into a sandbox?
@@ -39,7 +39,7 @@ namespace TechBot.Objects
 
         public void RegisterLUAFunctions()
         {
-            Environment.RegisterFunction("SendMessage", this, GetType().GetMethod("SendMessage"));
+            Environment.RegisterFunction("sendMessage", this, GetType().GetMethod("SendMessage"));
 
         }
 
@@ -56,7 +56,7 @@ namespace TechBot.Objects
                 LoadModule(module);
             }
             // Now you can start loading channel code.
-            string channelLUA = "channels/" + chName + "/main.lua";
+            string channelLUA = "channels" + Filesystem.Folders.FolderSplit + chName + Filesystem.Folders.FolderSplit + Filesystem.Files.LUA_DefaultFile;
 
             if (File.Exists(channelLUA))
                 Environment.LoadFile(channelLUA);// We should probably avoid loading the LUA files with LoadFile and instead make a command loading this into a sandbox?
@@ -85,7 +85,7 @@ namespace TechBot.Objects
         {
             ThreadPool.QueueUserWorkItem(new WaitCallback(delegate (object state)
             {
-                MessageHandling.SendMessage(ParentChannel, Message);
+                IRC_Functions.SendMessage(ParentChannel, Message);
             }), null);
         }
 
@@ -96,7 +96,7 @@ namespace TechBot.Objects
 
             ThreadPool.QueueUserWorkItem(new WaitCallback(delegate (object state)
             {
-                NLua.LuaFunction MessageReceived = Environment["Event_MessageReceived"] as NLua.LuaFunction;
+                NLua.LuaFunction MessageReceived = Environment["event_MessageReceived"] as NLua.LuaFunction;
                 MessageReceived.Call(user.Username, Message); // Safer way to call than using DoString
             }), null);
         }
