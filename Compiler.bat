@@ -46,7 +46,7 @@ call:TWITCH
 echo                                       Starting the Linux compiler...
 PING localhost -n 3 >NUL
 call:TWITCH
-dotnet build --runtime linux-x64
+dotnet build -c release -r linux-x64
 pause
 exit
 
@@ -55,7 +55,7 @@ call:TWITCH
 echo                                      Starting the Windows compiler...
 PING localhost -n 3 >NUL
 call:TWITCH
-dotnet build --runtime win10-x64
+dotnet build -c release -r win10-x64
 pause
 exit
 
@@ -64,6 +64,6 @@ call:TWITCH
 echo                                   Starting the MacOS (10.12+) compiler...
 PING localhost -n 3 >NUL
 call:TWITCH
-dotnet build --runtime osx-x64
+dotnet build -c release -r osx-x64
 pause
 exit
