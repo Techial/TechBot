@@ -11,7 +11,7 @@
         public static void SendMessage(Objects.Channel Channel, string Message)
         {
             IRC.client.SendRawMessage("PRIVMSG #"+Channel.Name.ToLower()+" :"+Message);
-            Log.Logger.OutputToConsole("[#{0}] {0}: {1}", Channel.Name.ToLower(), Message);
+            Log.Logger.OutputToConsole("[#{0}] {1}: {2}", Channel.Name.ToLower(),Config.Credentials.Username, Message);
         }
 
         public static void SendCommand(string Command)

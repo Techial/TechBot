@@ -212,57 +212,68 @@ namespace TechBot
 
         private static void IrcClient_Process(object sender, IrcRawMessageEventArgs e)
         {
-            string[] strlist = e.RawContent.Split(" ");
-            if (strlist[2] == "PRIVMSG")
+            ThreadPool.QueueUserWorkItem(new WaitCallback(delegate (object state)
             {
-                string[] modes = strlist[0].Split(";");
-                int i = 0;
-                bool isMod = false;
-                string username = "";
-                foreach (string r in modes)
+                try
                 {
-                    if (r.Contains("mod="))
+                    string[] strlist = e.RawContent.Split(" ");
+                    if (strlist[2] == "PRIVMSG")
                     {
-                        string IsMod = r.Split("=")[1];
-                        //IsMod = IsMod.Remove(IsMod.Length - 1);
-                        if (IsMod == "1")
+                        string[] modes = strlist[0].Split(";");
+                        int i = 0;
+                        bool isMod = false;
+                        string username = "";
+                        foreach (string r in modes)
+                        {
+                            if (r.Contains("mod="))
+                            {
+                                string IsMod = r.Split("=")[1];
+                                //IsMod = IsMod.Remove(IsMod.Length - 1);
+                                if (IsMod == "1")
+                                    isMod = true;
+                            }
+                            else if (r.Contains("display-name="))
+                            {
+                                username = r.Split("=")[1];
+                            }
+
+                            i++;
+                        }
+
+                        // Channel      = String    channelName
+                        // Username     = String    username
+                        // Message      = String    message
+                        // Is User mod? = Boolean   isMod
+
+                        string channelName = strlist[3].Substring(1);
+                        string message = strlist[4].Substring(1);
+
+                        if (username.ToLower() == channelName.ToLower())
                             isMod = true;
-                    }else if(r.Contains("display-name=")) {
-                        username = r.Split("=")[1];
+
+                        Log.Logger.OutputToConsole("[{0}] {1}: {2}", strlist[3], username, message);
+
+                        TechBot.Objects.Channel Channel = FindChannel(channelName);
+                        TechBot.Objects.User tempUser = Channel.FindUser(username);
+
+                        if (tempUser == null)
+                        {
+                            tempUser = new TechBot.Objects.User(username, channelName);
+                        }
+
+                        Channel.UserJoined(tempUser);
+
+                        Channel.ChatMessageReceived(tempUser, isMod, message);
                     }
-
-                    i++;
-                }
-
-                // Channel      = String    channelName
-                // Username     = String    username
-                // Message      = String    message
-                // Is User mod? = Boolean   isMod
-
-                string channelName = strlist[3].Substring(1);
-                string message = strlist[4].Substring(1);
-
-                if (username.ToLower() == channelName.ToLower())
-                    isMod = true;
-
-                Log.Logger.OutputToConsole("[{0}] {1}: {2}", strlist[3], username, message);
-
-                TechBot.Objects.Channel Channel = FindChannel(channelName);
-                TechBot.Objects.User tempUser = Channel.FindUser(username);
-
-                if (tempUser == null)
+                    else
+                    {
+                        //Log.Logger.OutputToConsole(e.RawContent);
+                    }
+                } catch
                 {
-                    tempUser = new TechBot.Objects.User(username, channelName);
+
                 }
-
-                Channel.UserJoined(tempUser);
-
-                Channel.ChatMessageReceived(tempUser, isMod, message);
-            }
-            else
-            {
-                //Log.Logger.OutputToConsole(e.RawContent);
-            }
+            }), null);
         }
 
         private static void IrcClient_Disconnected(object sender, EventArgs e)

@@ -110,14 +110,20 @@ namespace TechBot.Objects
         }
 
         // -------------------------------------------------EVENTS-----------------------------------------------------
-        public void ChatMessageReceived(User user,string Message)
+        public void ChatMessageReceived(User user, bool IsMod, string Message)
         {
             // Should probably add an event handler, but RegisterLuaDelegateType is poorly documented.
 
             ThreadPool.QueueUserWorkItem(new WaitCallback(delegate (object state)
             {
-                NLua.LuaFunction MessageReceived = Environment["event_MessageReceived"] as NLua.LuaFunction;
-                MessageReceived.Call(user.Username, Message); // Safer way to call than using DoString
+                try
+                {
+                    NLua.LuaFunction MessageReceived = Environment["event_MessageReceived"] as NLua.LuaFunction;
+                    MessageReceived.Call(user.Username, IsMod, Message); // Safer way to call than using DoString
+                } catch
+                {
+                    IRC_Functions.SendMessage(ParentChannel, "Script failed");
+                }
             }), null);
         }
 

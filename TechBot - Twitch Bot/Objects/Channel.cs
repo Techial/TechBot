@@ -110,7 +110,7 @@ namespace TechBot.Objects
             }
             else
             {
-                LUAContainer.ChatMessageReceived(user, Message);
+                LUAContainer.ChatMessageReceived(user, IsMod, Message);
             }
         }
     }
