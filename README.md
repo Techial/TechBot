@@ -4,7 +4,7 @@
 
 ## [Documentation](https://Techial.github.io/TechBot/)
 
-[![Build Status](https://travis-ci.org/Techial/TechBot.svg?branch=master)](https://travis-ci.org/Techial/TechBot)
+Linux-x64, win10-x64 and osx-x64 build status: [![Build Status](https://travis-ci.org/Techial/TechBot.svg?branch=master)](https://travis-ci.org/Techial/TechBot)
 
 ## Overview
 
