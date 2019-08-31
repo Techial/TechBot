@@ -5,4 +5,6 @@ dotnet: 2.1.300
 
 script:
 - dotnet restore
-- dotnet build
+- dotnet build -c release -r linux-x64
+- dotnet build -c release -r win10-x64
+- dotnet build -c release -r osx-x64
