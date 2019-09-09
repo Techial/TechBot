@@ -11,8 +11,8 @@ Folder structure: (TODO)
 	│   └───Official
 	│   │   │   URLProtection.lua
 	│   │   │   SomeModuleName.lua
-	│	│
-	│	└───Username
+	│   |
+	│   └───Username
 	│       │   ModuleName.lua
 	│   
 	└───Channels
