@@ -115,8 +115,6 @@ namespace TechBot
         {
             var client = (IrcClient)sender;
 
-            client.LocalUser.NoticeReceived += IrcClient_LocalUser_NoticeReceived;
-            client.LocalUser.MessageReceived += IrcClient_LocalUser_MessageReceived;
             client.LocalUser.JoinedChannel += IrcClient_LocalUser_JoinedChannel;
             client.LocalUser.LeftChannel += IrcClient_LocalUser_LeftChannel;
             client.RawMessageReceived += IrcClient_Process;
@@ -128,8 +126,6 @@ namespace TechBot
 
             e.Channel.UserJoined -= IrcClient_Channel_UserJoined;
             e.Channel.UserLeft -= IrcClient_Channel_UserLeft;
-            //e.Channel.MessageReceived -= IrcClient_Channel_MessageReceived;
-            e.Channel.NoticeReceived -= IrcClient_Channel_NoticeReceived;
 
             TechBot.Objects.Channel Channel = FindChannel(e.Channel.Name.Substring(1));
             if (ChannelList.Contains(Channel))
@@ -144,8 +140,6 @@ namespace TechBot
 
             e.Channel.UserJoined += IrcClient_Channel_UserJoined;
             e.Channel.UserLeft += IrcClient_Channel_UserLeft;
-            //e.Channel.MessageReceived += IrcClient_Channel_MessageReceived;
-            e.Channel.NoticeReceived += IrcClient_Channel_NoticeReceived;
 
             TechBot.Objects.Channel newChannel = new TechBot.Objects.Channel(e.Channel);
             ChannelList.Add(newChannel);
@@ -176,38 +170,7 @@ namespace TechBot
         {
             var channel = (IrcChannel)sender;
 
-            /*TechBot.Objects.Channel Channel = FindChannel(e.ChannelUser.Channel.Name.Substring(1));
-            TechBot.Objects.User tempUser = Channel.FindUser(e.ChannelUser.User.NickName);
-
-            if (tempUser == null)
-            {
-                tempUser = new TechBot.Objects.User(e.ChannelUser.User, Channel.Name);
-            }
-
-            Channel.UserJoined(tempUser);*/
-
             Log.Logger.OutputToConsole("[{0}] User {1} joined the channel.", channel.Name, e.ChannelUser.User.NickName);
-        }
-
-        private static void IrcClient_LocalUser_MessageReceived(object sender, IrcMessageEventArgs e)
-        {
-            var localUser = (IrcLocalUser)sender;
-
-            if (e.Source is IrcUser)
-            {
-                // Read message.
-                Log.Logger.OutputToConsole("({0}): {1}.", e.Source.Name, e.Text);
-            }
-            else
-            {
-                Log.Logger.OutputToConsole("({0}) Message: {1}.", e.Source.Name, e.Text);
-            }
-        }
-
-        private static void IrcClient_LocalUser_NoticeReceived(object sender, IrcMessageEventArgs e)
-        {
-            var localUser = (IrcLocalUser)sender;
-            Log.Logger.OutputToConsole("Notice: {0}.", e.Text);
         }
 
         private static void IrcClient_Process(object sender, IrcRawMessageEventArgs e)
@@ -223,7 +186,7 @@ namespace TechBot
                         int i = 0;
                         bool isMod = false;
                         string username = "";
-                        foreach (string r in modes)
+                        foreach (string r in modes; i++)
                         {
                             if (r.Contains("mod="))
                             {
@@ -236,8 +199,6 @@ namespace TechBot
                             {
                                 username = r.Split("=")[1];
                             }
-
-                            i++;
                         }
 
                         // Channel      = String    channelName

@@ -6,7 +6,7 @@ namespace TechBot.Config
     static class Files
     {
         public static string WebProtocol = "https://";
-        public static string Github_URL = "github.com/Techial/TechBot/";
+        public static string Github_URL { get; } = "github.com/Techial/TechBot/";
         private static string ConfigCategory { get; } = "Files";
 
         public static void Init()
