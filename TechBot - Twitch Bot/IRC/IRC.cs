@@ -186,7 +186,7 @@ namespace TechBot
                         int i = 0;
                         bool isMod = false;
                         string username = "";
-                        foreach (string r in modes; i++)
+                        foreach (string r in modes)
                         {
                             if (r.Contains("mod="))
                             {
@@ -199,6 +199,7 @@ namespace TechBot
                             {
                                 username = r.Split("=")[1];
                             }
+                            i++;
                         }
 
                         // Channel      = String    channelName
