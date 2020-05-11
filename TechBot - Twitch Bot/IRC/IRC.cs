@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Timers;
 
 namespace TechBot
 {
@@ -73,6 +74,11 @@ namespace TechBot
 
                 Console.Out.WriteLine("Now registered to '{0}' as '{1}'.", server, username);
                 client.SendRawMessage("CAP REQ :twitch.tv/membership twitch.tv/commands twitch.tv/tags");
+                System.Timers.Timer PingPonger = new System.Timers.Timer();// Start ping timer
+                PingPonger.Interval = 5 * 60 * 1000; // 5 minutes
+                PingPonger.Elapsed += PingPongElapsed;
+                PingPonger.AutoReset = true;
+                PingPonger.Start();
                 HandleEventLoop(client);
             }
         }
@@ -83,32 +89,52 @@ namespace TechBot
             while (!isExit)
             {
                 Console.Write("> ");
-                var command = Console.ReadLine();
+                var tmp = Console.ReadLine();
+                string[] tmpList = tmp.Split(" ");
+                string arg = "";
+                string command = "";
+                if(tmpList.Count() > 1)
+                {
+                    command = tmpList[0];
+                    for(int i = 1; i < tmpList.Count(); i++)
+                    {
+                        arg += tmpList[i];
+                    }
+                } else {
+                    command = tmp;
+                }
+                
                 switch (command)
                 {
                     case "exit":
                         isExit = true;
                         break;
                     case "join":
-                        if(!string.IsNullOrEmpty(command))
-                            client.SendRawMessage("JOIN #"+command);
+                        if(!string.IsNullOrEmpty(arg))
+                            client.SendRawMessage("JOIN #"+arg);
                         break;
                     default:
-                        if (!string.IsNullOrEmpty(command))
+                        if (!string.IsNullOrEmpty(tmp))
                         {
-                            if (command.StartsWith("/") && command.Length > 1)
+                            if (tmp.StartsWith("/") && tmp.Length > 1)
                             {
-                                client.SendRawMessage(command.Substring(1));
+                                client.SendRawMessage(tmp.Substring(1));
                             }
                             else
                             {
-                                Log.Logger.OutputToConsole("unknown command '{0}'", command);
+                                Log.Logger.OutputToConsole("unknown command '{0}'", tmp);
                             }
                         }
                         break;
                 }
             }
             client.Disconnect();
+        }
+
+        private static void PingPongElapsed(object sender, ElapsedEventArgs e)
+        {
+            IRC_Functions.SendCommand("PONG :tmi.twitch.tv");
+
         }
 
         private static void IrcClient_Registered(object sender, EventArgs e)
@@ -216,6 +242,11 @@ namespace TechBot
             {
                 try
                 {
+                    if(e.RawContent == "PING :tmi.twitch.tv")
+                    {
+                        IRC_Functions.SendCommand("PONG :tmi.twitch.tv");
+                        return;
+                    }
                     string[] strlist = e.RawContent.Split(" ");
                     if (strlist[2] == "PRIVMSG")
                     {
@@ -247,6 +278,11 @@ namespace TechBot
 
                         string channelName = strlist[3].Substring(1);
                         string message = strlist[4].Substring(1);
+
+                        for(int l = 5; l < strlist.Count(); l++)
+                        {
+                            message += " "+strlist[l];
+                        }
 
                         if (username.ToLower() == channelName.ToLower())
                             isMod = true;
