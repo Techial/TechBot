@@ -15,12 +15,12 @@ namespace TechBot.Log
             {
                 if (i>0)
                 {
-                    formats[i-1] = f;
+                    formats[i-1] = @f;
                 }
                 i++;
             }
             string message = string.Format(args[0], formats);
-            Console.WriteLine(message);
+            Console.WriteLine(@message);
         }
     }
 }
