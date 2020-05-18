@@ -10,7 +10,7 @@
             "request": "launch",
             "preLaunchTask": "build Debug",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/TechBot - Twitch Bot/bin/Debug/netcoreapp2.1/TechBot.dll",
+            "program": "${workspaceFolder}/TechBot - Twitch Bot/bin/Debug/netcoreapp3.1/TechBot.dll",
             "args": [],
             "cwd": "${workspaceFolder}/TechBot - Twitch Bot",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
