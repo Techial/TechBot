@@ -221,11 +221,11 @@ static class IRC {
   }
 
   private static void IrcClient_Disconnected(object sender, EventArgs e) {
-    var client = (IrcClient)sender;
+    var client = (IrcClient) sender;
   }
 
   private static void IrcClient_Connected(object sender, EventArgs e) {
-    var client = (IrcClient)sender;
+    var client = (IrcClient) sender;
   }
 }
 }
