@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace TechBot.Objects
+﻿namespace TechBot.Objects
 {
     public class User
     {

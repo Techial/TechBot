@@ -1,6 +1,4 @@
-﻿using Salaros.Configuration;
-using System;
-using System.Threading;
+﻿using System;
 
 namespace TechBot
 {

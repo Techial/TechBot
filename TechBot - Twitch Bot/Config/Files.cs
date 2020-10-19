@@ -1,7 +1,4 @@
-﻿using System;
-using System.Net;
-
-namespace TechBot.Config
+﻿namespace TechBot.Config
 {
     static class Files
     {

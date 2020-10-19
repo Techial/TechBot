@@ -1,5 +1,4 @@
 ﻿using Salaros.Configuration;
-using System.IO;
 
 namespace TechBot
 {
