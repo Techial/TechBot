@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using System.Net;
 
 namespace TechBot.Objects
 {
@@ -38,6 +39,10 @@ namespace TechBot.Objects
         public void RegisterLUAFunctions()
         {
             Environment.RegisterFunction("sendMessage", this, GetType().GetMethod("SendMessage"));
+            Environment.RegisterFunction("downloadString", this, GetType().GetMethod("DownloadString"));
+
+            // DEBUG
+            Environment.RegisterFunction("printToConsole", this, GetType().GetMethod("PrintToConsole"));
         }
 
         public void RefreshLUA()
@@ -109,7 +114,47 @@ namespace TechBot.Objects
             }), null);
         }
 
+        public string DownloadString(string Message)
+        {
+            WebClient web = new WebClient();
+            string result = web.DownloadString(Message);
+            return result;
+        }
+
+        public void PrintToConsole(string Message)
+        {
+            Log.Logger.OutputToConsole(@Message);
+        }
+
         // -------------------------------------------------EVENTS-----------------------------------------------------
+        public void CommandReceived(User user, bool IsMod, string Message)
+        {
+            // Should probably add an event handler, but RegisterLuaDelegateType is poorly documented.
+
+            ThreadPool.QueueUserWorkItem(new WaitCallback(delegate (object state)
+            {
+                try
+                {
+                    List<string> strlist = new List<string>(Message.Split(" "));
+                    if(Environment["command_"+strlist[0].Substring(1)] == null)
+                    {
+                        //IRC_Functions.SendMessage(ParentChannel, "Command not found.");
+                        return;
+                    }
+
+                    NLua.LuaFunction MessageReceived = Environment["command_"+strlist[0].Substring(1)] as NLua.LuaFunction;
+                    strlist.RemoveAt(0);
+                    MessageReceived.Call(user.Username, IsMod, strlist); // Safer way to call than using DoString
+                } catch (NLua.Exceptions.LuaScriptException e)
+                {
+                    //IRC_Functions.SendMessage(ParentChannel, "Script failed");
+                    Log.Logger.OutputToConsole(e.ToString());
+                } catch {
+                    // Do nothing
+                }
+            }), null);
+        }
+
         public void ChatMessageReceived(User user, bool IsMod, string Message)
         {
             // Should probably add an event handler, but RegisterLuaDelegateType is poorly documented.
@@ -120,9 +165,12 @@ namespace TechBot.Objects
                 {
                     NLua.LuaFunction MessageReceived = Environment["event_MessageReceived"] as NLua.LuaFunction;
                     MessageReceived.Call(user.Username, IsMod, Message); // Safer way to call than using DoString
-                } catch
+                } catch (NLua.Exceptions.LuaScriptException e)
                 {
                     IRC_Functions.SendMessage(ParentChannel, "Script failed");
+                    Log.Logger.OutputToConsole(e.ToString());
+                } catch {
+                    // Do nothing
                 }
             }), null);
         }

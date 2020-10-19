@@ -1,30 +1,31 @@
-﻿using IrcDotNet;
+using IrcDotNet;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Timers;
 
 namespace TechBot {
-static class IRC {
+  static class IRC {
   public static TwitchIrcClient client;
-
+    
   public static List<TechBot.Objects.Channel> ChannelList =
       new List<TechBot.Objects.Channel>();
 
-  public static TechBot.Objects.Channel FindChannel(string ChannelName) {
-    foreach (TechBot.Objects.Channel Channel in ChannelList) {
-      if (Channel.Name == ChannelName) {
-        return Channel;
-      }
-    }
-    return null;
-  }
+         public static TechBot.Objects.Channel FindChannel(string ChannelName) {
+            foreach (TechBot.Objects.Channel Channel in ChannelList) {
+              if (Channel.Name == ChannelName) {
+                return Channel;
+              }
+            }
+            return null;
+          }
 
   public static void Init(string[] args) {
     if (args.Length < 2) {
       Log.Logger.OutputToConsole("Usage: twitchirc <username> <oauth>");
       Log.Logger.OutputToConsole(
-          "Use http://twitchapps.com/tmi/ to generate an <oauth> token!");
+        "Use http://twitchapps.com/tmi/ to generate an <oauth> token!");
       return;
     }
 
@@ -218,13 +219,4 @@ static class IRC {
         }),
         null);
   }
-
-  private static void IrcClient_Disconnected(object sender, EventArgs e) {
-    var client = (IrcClient) sender;
-  }
-
-  private static void IrcClient_Connected(object sender, EventArgs e) {
-    var client = (IrcClient) sender;
-  }
-}
 }

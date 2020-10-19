@@ -106,6 +106,9 @@ namespace TechBot.Objects
                             LUAContainer.RefreshLUA();
 
                         break;
+                    default:
+                        LUAContainer.CommandReceived(user, IsMod, Message);
+                        break;
                 }
             }
             else
