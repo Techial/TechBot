@@ -220,3 +220,4 @@ static class IRC {
         null);
   }
 }
+}
