@@ -8,7 +8,7 @@ namespace TechBot.Config
         private static string ConfigCategory { get; } = "Config";
         public static string GetCommandPrefix(Objects.Channel channel)
         {
-            string ConfigPath = Config.Folders.ChannelFolder + Config.Folders.FolderSplit + channel.Name + Config.Folders.FolderSplit + "config.cfg";
+            string ConfigPath = Config.Folders.ChannelFolder + Config.Folders.FolderSplit + channel.Name.ToLower() + Config.Folders.FolderSplit + "config.cfg";
             ConfigParser ConfigFile = new ConfigParser(ConfigPath);
             string Prefix = ConfigFile.GetValue(ConfigCategory, "Command_Prefix");
             if (String.IsNullOrEmpty(Prefix))

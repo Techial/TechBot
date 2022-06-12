@@ -22,7 +22,7 @@ namespace TechBot.Config
             // Check if values are empty and fill as needed
             if (String.IsNullOrEmpty(Config.Folders.ChannelFolder))
             {
-                string value = "Channels";
+                string value = "channels";
                 Config.Folders.SetValue("Channel", value);
 
                 Config.Folders.ChannelFolder = value;
@@ -30,7 +30,7 @@ namespace TechBot.Config
 
             if (String.IsNullOrEmpty(Config.Folders.ModuleFolder))
             {
-                string value = "Modules";
+                string value = "modules";
                 Config.Folders.SetValue("Module", value);
 
                 Config.Folders.ModuleFolder = value;
@@ -38,7 +38,7 @@ namespace TechBot.Config
 
             if (String.IsNullOrEmpty(Config.Folders.TemplateFolder))
             {
-                string value = "Templates";
+                string value = "templates";
                 Config.Folders.SetValue("Template", value);
 
                 Config.Folders.TemplateFolder = value;

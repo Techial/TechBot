@@ -111,7 +111,7 @@ namespace TechBot
                         break;
                     case "join":
                         if(!string.IsNullOrEmpty(arg))
-                            client.SendRawMessage("JOIN #"+arg);
+                            client.SendRawMessage("JOIN #"+arg.ToLower());
                         break;
                     default:
                         if (!string.IsNullOrEmpty(tmp))
@@ -133,7 +133,8 @@ namespace TechBot
 
         private static void PingPongElapsed(object sender, ElapsedEventArgs e)
         {
-            IRC_Functions.SendCommand("PONG :tmi.twitch.tv");
+            IRC_Functions.SendCommand("PING tmi.twitch.tv");
+            //Log.Logger.OutputToConsole("Pinged tmi.twitch.tv");
 
         }
 
@@ -244,7 +245,8 @@ namespace TechBot
                 {
                     if(e.RawContent == "PING :tmi.twitch.tv")
                     {
-                        IRC_Functions.SendCommand("PONG :tmi.twitch.tv");
+                        //Log.Logger.OutputToConsole("Pingpong!");
+                        IRC_Functions.SendCommand("PONG tmi.twitch.tv");
                         return;
                     }
                     string[] strlist = e.RawContent.Split(" ");

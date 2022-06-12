@@ -8,7 +8,7 @@ namespace TechBot.Filesystem
     {
         public static void InitChannel(Objects.Channel Channel)
         {
-            string ChannelDestination = Config.Folders.ChannelFolder + Config.Folders.FolderSplit + Channel.Name;
+            string ChannelDestination = Config.Folders.ChannelFolder + Config.Folders.FolderSplit + Channel.Name.ToLower();
             if (!Directory.Exists(ChannelDestination))
                 Directory.CreateDirectory(ChannelDestination);
         }

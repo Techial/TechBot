@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading;
 using System.Net;
+using System;
 
 namespace TechBot.Objects
 {
@@ -29,7 +30,7 @@ namespace TechBot.Objects
             string ModuleName = module.Name;
             string Creator = module.Creator;
 
-            string ModuleFile = "modules" + Config.Folders.FolderSplit + Creator + Config.Folders.FolderSplit + ModuleName + ".lua";
+            string ModuleFile = Config.Folders.ModuleFolder + Config.Folders.FolderSplit + Creator + Config.Folders.FolderSplit + ModuleName + ".lua";
 
             if (File.Exists(ModuleFile))
                 Environment.DoFile(ModuleFile); // We should probably avoid loading the LUA files with LoadFile and instead make a command loading this into a sandbox?
@@ -75,16 +76,21 @@ namespace TechBot.Objects
                 }
             }
             // Now you can start loading channel code.
-            string channelLUA = "channels" + Config.Folders.FolderSplit + chName + Config.Folders.FolderSplit + Config.LUA.DefaultFile;
+            string channelLUA = Config.Folders.ChannelFolder + Config.Folders.FolderSplit + chName.ToLower() + Config.Folders.FolderSplit + Config.LUA.DefaultFile;
 
             try
             {
                 if (File.Exists(channelLUA))
+                {
                     Environment.DoFile(channelLUA);// We should probably avoid loading the LUA files with LoadFile and instead make a command loading this into a sandbox?
                                                    // https://github.com/kikito/sandbox.lua/blob/master/sandbox.lua
-            } catch
+                } else
+                {
+                    Log.Logger.OutputToConsole("Could not find "+channelLUA);
+                }
+            } catch (Exception e)
             {
-                // Do nothing for now
+                Log.Logger.OutputToConsole("Script failed " + e.ToString());
             }
         }
 
@@ -149,8 +155,8 @@ namespace TechBot.Objects
                 {
                     //IRC_Functions.SendMessage(ParentChannel, "Script failed");
                     Log.Logger.OutputToConsole(e.ToString());
-                } catch {
-                    // Do nothing
+                } catch (Exception e) {
+                    Log.Logger.OutputToConsole("Script failed " + e.ToString());
                 }
             }), null);
         }
@@ -163,14 +169,15 @@ namespace TechBot.Objects
             {
                 try
                 {
-                    NLua.LuaFunction MessageReceived = Environment["event_MessageReceived"] as NLua.LuaFunction;
+                    NLua.LuaFunction MessageReceived = this.Environment.GetFunction("event_MessageReceived");
+                    //NLua.LuaFunction MessageReceived = this.Environment["event_MessageReceived"] as NLua.LuaFunction;
                     MessageReceived.Call(user.Username, IsMod, Message); // Safer way to call than using DoString
                 } catch (NLua.Exceptions.LuaScriptException e)
                 {
                     IRC_Functions.SendMessage(ParentChannel, "Script failed");
                     Log.Logger.OutputToConsole(e.ToString());
-                } catch {
-                    // Do nothing
+                } catch (Exception e) {
+                    Log.Logger.OutputToConsole("Script failed "+e.ToString());
                 }
             }), null);
         }

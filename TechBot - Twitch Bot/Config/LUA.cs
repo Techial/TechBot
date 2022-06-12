@@ -20,7 +20,7 @@ namespace TechBot.Config
             // Check if values are empty and fill as needed
             if (String.IsNullOrEmpty(ChannelTemplate))
             {
-                string value = "Templates" + Folders.FolderSplit + "Channel.lua";
+                string value = "channel.lua";
                 SetValue("ChannelTemplate", value);
 
                 ChannelTemplate = value;
@@ -45,7 +45,7 @@ namespace TechBot.Config
             if (!System.IO.File.Exists(Config.LUA.ChannelTemplate))
             {
                 using (WebClient wc = new WebClient())
-                    wc.DownloadFile(Config.Files.WebProtocol + "raw." + Config.Files.Github_URL + "master/Templates/Channel.lua", ChannelTemplate); // Download Channel-template from Github page
+                    wc.DownloadFile(Config.Files.WebProtocol + "raw." + Config.Files.Github_URL + "master/Templates/Channel.lua", Folders.TemplateFolder + Folders.FolderSplit + ChannelTemplate); // Download Channel-template from Github page
                 // Should probably add a version control to update this file??
                 // Or leave it up to the end user??
             }
