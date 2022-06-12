@@ -1,17 +1,16 @@
-﻿using IrcDotNet;
+using IrcDotNet;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Timers;
 
-namespace TechBot
-{
-    static class IRC
-    {
-        public static TwitchIrcClient client;
+namespace TechBot {
+static class IRC {
+  public static TwitchIrcClient client;
 
-        public static List<TechBot.Objects.Channel> ChannelList = new List<TechBot.Objects.Channel>();
+  public static List<TechBot.Objects.Channel> ChannelList =
+      new List<TechBot.Objects.Channel>();
 
         public static TechBot.Objects.Channel FindChannel(string ChannelName)
         {
@@ -323,5 +322,5 @@ namespace TechBot
         {
             var client = (IrcClient)sender;
         }
-    }
+}
 }

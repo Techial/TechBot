@@ -2,7 +2,8 @@
 
 -- Current functions
 ----------------------
--- sendMessage
+-- sendMessage (string Message)
+-- downloadString (string URL)
 
 function event_MessageReceived(username, ismod, message)
 	-- username = username of whoever sent message
